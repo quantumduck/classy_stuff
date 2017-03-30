@@ -14,26 +14,41 @@ class Vampire
   end
 
   def self.sunrise
-    @@night = false
-    @@coven.each do |vampire|
-      unless (vampire.in_coffin && vampire.drank_blood_today)
-        @@coven.delete(vampire)
+    if @@night
+      @@night = false
+      @@coven.each do |vampire|
+        unless (vampire.in_coffin && vampire.drank_blood_today)
+          @@coven.delete(vampire)
+        end
       end
+      return true
+    else
+      return false
     end
   end
 
   def self.sunset
-    @@night = true
-    @@coven.each do |vampire|
-      vampire.age += 1
-      vampire.in_coffin = false
-      vampire.drank_blood_today = false
+    if !@@night
+      @@night = true
+      @@coven.each do |vampire|
+        vampire.age += 1
+        vampire.in_coffin = false
+        vampire.drank_blood_today = false
+      end
+      return true
+    else
+      return false
     end
   end
 
+  attr_reader :name
+  attr_accessor :age
+  attr_accessor :drank_blood_today
+  attr_accessor :in_coffin
+
   def initialize(name = nil)
     if (name == nil)
-      @name = "Vlad #{vlad_num}"
+      @name = "Vlad #{@@vlad_num}"
       @@vlad_num += 1
     else
       @name = name.to_s

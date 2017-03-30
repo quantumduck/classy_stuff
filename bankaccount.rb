@@ -15,7 +15,7 @@ class BankAccount
     @@accounts.each do |account|
       funds += account.balance
     end
-    funds
+    (funds.to_f / 100.0).round(2)
   end
 
   def self.interest_time
@@ -77,9 +77,9 @@ class BankAccount
 
 end
 
-my_account = BankAccount.create
+# my_account = BankAccount.create
 
-my_account.balance_inq
+# my_account.balance_inq
 #
 # puts my_account.balance
 #

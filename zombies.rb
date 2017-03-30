@@ -17,12 +17,12 @@ class Zombie
     born = Zombie.spawn
     Zombie.increase_plague_level
     @@day += 1
-    puts "Apocalypse report: day #{@@day}:"
-    puts "********************************"
-    puts "New zombies:.............#{born}"
-    puts "Dead zombies:............#{dead}"
-    puts "Total zombies:...........#{Zombie.all.size}"
-    puts "Plague_level:............#{@@plague_level}"
+    puts "Apocalypse report: day #{@@day - 1}:"
+    puts "************************"
+    puts "New zombies:..........#{born}"
+    puts "Dead zombies:.........#{dead}"
+    puts "Total zombies:........#{Zombie.all.size}"
+    puts "Plague_level:.........#{@@plague_level}"
   end
 
   def self.some_die_off
@@ -42,8 +42,21 @@ class Zombie
   end
 
   def self.increase_plague_level
-    @@plague_level += rand(3)
+    @@plague_level = 10 + @@horde.size / 2
   end
+
+  def self.deadliest_zombie
+    deadliest = @@horde[0]
+    @@horde.each do |zombie|
+      if ((zombie.speed + zombie.strength) > (deadliest.speed + deadliest.strength))
+        deadliest = zombie
+      end
+    end
+    deadliest
+  end
+
+  attr_reader :speed
+  attr_reader :strength
 
   def initialize(name, speed = @@default_speed, strength = @@default_strength)
     @name = name

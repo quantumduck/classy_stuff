@@ -24,11 +24,27 @@ class Book
     overdue_books
   end
 
-  def self.browse
-    if (@@on_shelf.length > 0)
-      return @@on_shelf[@@book_number.rand(@@on_shelf.length)]
+  def self.genre_list(genre)
+    book_list = []
+    @@on_shelf.each do |book|
+      book_list << book if book.genre == genre
+    end
+  end
+
+  def self.browse(genre = :any)
+    if (genre == :any)
+      if (@@on_shelf.length > 0)
+        return @@on_shelf[@@book_number.rand(@@on_shelf.length)]
+      else
+        puts "Sorry, there are no books on shelf."
+      end
     else
-      puts "Sorry, there are no books on shelf."
+      book_list = Books.genre(genre)
+      if (book_list.length > 0)
+        return book_list[@@book_number.rand(book_list.length)]
+      else
+        puts "Sorry, there are no books on shelf in the #{genre.to_s} section."
+      end
     end
   end
 
@@ -40,21 +56,60 @@ class Book
     @@on_loan
   end
 
+  def self.match(key, value, availability = :any)
+    matches = []
+    unless (availability == :on_loan)
+      @@on_shelf.each do |book|
+        case key
+        when key == :title
+          matches << book if book.title == value
+        when key == :author
+          matches << book if book.author == value
+        when key == :genre
+          matches << book if book.genre == value
+        when key == :isbn
+          matches << book if book.isbn == value
+        end
+      end
+    end
+    unless (availability == :on_shelf)
+      @@on_loan.each do |book|
+        case key
+        when key == :title
+          matches << book if book.title == value
+        when key == :author
+          matches << book if book.author == value
+        when key == :genre
+          matches << book if book.genre == value
+        when key == :isbn
+          matches << book if book.isbn == value
+        end
+      end
+    end
+  end
+
 ###########################################
 
   attr_accessor :due_date
-  attr_reader :uuid
+  attr_reader :index
+  attr_reader :genre
+  attr_reader :isbn
+  attr_reader :title
+  attr_reader :author
 
-  def initialize(title, author, isbn)
+  def initialize(title, author, isbn, genre = :unspecified)
     @title = title
     @author = author
     @isbn = isbn
     @@index += 1
     @index = @@index
+    @on_hold = false
+    @genre = genre
   end
 
   def borrow
     if (lent_out?)
+      @on_hold = true
       return false
     else
       @@on_loan << self
@@ -64,11 +119,26 @@ class Book
     end
   end
 
+  def renew
+    if (lent_out?)
+      if (!@on_hold)
+        @due_date += (7 * 24 * 3600) # 1 week
+        return true
+      end
+    else
+      return false
+    end
+  end
+
   def return_to_library
     if (lent_out?)
       @@on_shelf << self
       @@on_loan.delete(self)
       @due_date = nil
+      if @on_hold
+        puts "#{@title} has just been returned!"
+        @on_hold = false
+      end
       return true
     else
       return false

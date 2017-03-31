@@ -1,6 +1,7 @@
 class Vampire
 
   @@coven = []
+  @@dracula = @@coven[0]
   @@vlad_num = 1
   @@night = true
 
@@ -13,13 +14,22 @@ class Vampire
     @@coven[-1]
   end
 
+  def self.dracula
+    if !@@coven.include(@@dracula)
+      return nil
+    end
+    @@dracula
+  end
+
+  def self.all
+    @@coven
+  end
+
   def self.sunrise
     if @@night
       @@night = false
-      @@coven.each do |vampire|
-        unless (vampire.in_coffin && vampire.drank_blood_today)
-          @@coven.delete(vampire)
-        end
+      @@coven.delete_if do |vampire|
+        !(vampire.in_coffin && vampire.drank_blood_today)
       end
       return true
     else
@@ -55,7 +65,7 @@ class Vampire
     end
     @age = 0
     @in_coffin = false
-    @drank_blood_today = false
+    @drank_blood_today = true
   end
 
   def drink_blood
